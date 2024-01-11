@@ -1,32 +1,28 @@
 import { DOMAttributes, useRef } from "react";
 
 export default function useHover() {
-   const isPlaying = useRef(false);
+   const isPlaying = useRef(false)
    const triggerRef = useRef<HTMLDivElement>(null);
    const videoRef = useRef<HTMLVideoElement>(null);
 
-   const handlePlay = () => {
-      const videoEle = videoRef.current as HTMLVideoElement;
-
-      setTimeout(() => {
-         videoEle.play();
-      }, 150);
+   const play = async () => {
+      try {
+         const videoEle = videoRef.current as HTMLVideoElement;
+         await videoEle.play();
+         isPlaying.current = true;
+      } catch (error) {}
    };
 
-   const handlePlayMobile = () => {
+   const handlePlayMobile = async () => {
       const videoEle = videoRef.current as HTMLVideoElement;
+      videoEle.loop = false;
+
       if (isPlaying.current) {
-         isPlaying.current = false;
          handlePause();
          return;
       }
 
-      isPlaying.current = true;
-      videoEle.loop = false;
-
-      setTimeout(() => {
-         videoEle.play();
-      }, 150);
+      await play();
    };
 
    const handlePause = () => {
@@ -34,11 +30,12 @@ export default function useHover() {
 
       setTimeout(() => {
          videoEle.pause();
+         isPlaying.current = false;
       }, 150);
    };
 
    const triggerProps: DOMAttributes<HTMLElement> = {
-      onMouseEnter: () => handlePlay(),
+      onMouseEnter: () => play(),
       onMouseLeave: () => handlePause(),
       onTouchStart: () => handlePlayMobile(),
    };
